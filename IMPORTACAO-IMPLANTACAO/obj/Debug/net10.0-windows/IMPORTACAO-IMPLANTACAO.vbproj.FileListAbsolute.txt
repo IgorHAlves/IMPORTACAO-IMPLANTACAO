@@ -27,3 +27,4 @@ C:\DESENVOLVIMENTO\IMPORTACAO-IMPLANTACAO\IMPORTACAO-IMPLANTACAO\obj\Debug\net10
 C:\DESENVOLVIMENTO\IMPORTACAO-IMPLANTACAO\Importacao-Implantacao\bin\Debug\net10.0-windows\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\DESENVOLVIMENTO\IMPORTACAO-IMPLANTACAO\Importacao-Implantacao\bin\Debug\net10.0-windows\Microsoft.Extensions.Logging.Abstractions.dll
 C:\DESENVOLVIMENTO\IMPORTACAO-IMPLANTACAO\Importacao-Implantacao\bin\Debug\net10.0-windows\Npgsql.dll
+C:\DESENVOLVIMENTO\IMPORTACAO-IMPLANTACAO\Importacao-Implantacao\bin\Debug\net10.0-windows\Newtonsoft.Json.dll

@@ -3,7 +3,7 @@ CREATE TABLE cbcontrato (
     cpf_str VARCHAR(15) NOT NULL,
     contrato_str VARCHAR(11) NOT null,
     nome_cliente_str VARCHAR(150) NOT NULL,
-    nascimento DATE NOT NULL,
+    nascimento_date DATE NOT NULL,
     logradouro_str VARCHAR(200) NOT NULL,
     bairro_str VARCHAR(100) NOT NULL,
     cidade_str VARCHAR(100) NOT NULL,
@@ -17,7 +17,7 @@ CREATE INDEX idx_cbcontrato_nome
 ON cbcontrato (nome_cliente_str);
 
 CREATE INDEX idx_cbcontrato_nascimento
-ON cbcontrato (nascimento);
+ON cbcontrato (nascimento_date);
 
 CREATE TABLE cbparcela (
     id_cbparcela_int SERIAL PRIMARY KEY,
@@ -75,4 +75,7 @@ ON geqlemail (email_str);
 create table cblayout (
 id_cblayout_int serial primary key,
 layout_str varchar(200) not null
-)
+);
+
+insert into cblayout (layout_str)
+values('CPF;CONTRATO;PARCELA;VENCIMENTO;VALOR;NOME_CLIENTE;TELEFONE;CELULAR;EMAIL;NASCIMENTO;LOGRADOURO;BAIRRO;CIDADE;UF');

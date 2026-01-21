@@ -3,7 +3,7 @@ CREATE TABLE cbcontrato (
     cpf_str VARCHAR(15) NOT NULL,
     contrato_str VARCHAR(11) NOT null,
     nome_cliente_str VARCHAR(150) NOT NULL,
-    nascimento DATE NOT NULL,
+    nascimento_date DATE NOT NULL,
     logradouro_str VARCHAR(200) NOT NULL,
     bairro_str VARCHAR(100) NOT NULL,
     cidade_str VARCHAR(100) NOT NULL,

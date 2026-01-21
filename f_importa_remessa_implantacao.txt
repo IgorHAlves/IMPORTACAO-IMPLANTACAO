@@ -1,0 +1,220 @@
+-- DROP FUNCTION public.f_importa_remessa_implantacao(int4, text);
+
+CREATE OR REPLACE FUNCTION public.f_importa_remessa_implantacao(processo integer, tab_temp text)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    
+	If processo =  0 THEN
+
+		RAISE NOTICE 'PROCESSO 0 - Criar temporárias';
+
+        -- Drop da tabela permanente caso exista
+        EXECUTE format('DROP TABLE IF EXISTS %I', tab_temp|| '_cbcontrato');
+
+        -- Cria a tabela temprária para cbcontrato
+		EXECUTE format('CREATE TABLE %I AS
+		                SELECT DISTINCT ON (t.cpf)
+		                       CASE 
+		                           WHEN c.cpf_str IS NOT NULL THEN ''A''
+		                           ELSE ''I''
+		                       END AS inclui_altera,
+		                       t.cpf,
+		                       t.contrato,
+		                       t.nome_cliente,
+		                       t.nascimento,
+		                       t.logradouro,
+		                       t.bairro,
+		                       t.cidade,
+		                       t.uf
+		                FROM importacao_implantacao_tmp t
+		                LEFT JOIN cbcontrato c
+		                       ON c.cpf_str = t.cpf
+		                WHERE t.cpf IS NOT NULL AND t.cpf <> '''' AND t.parcela = ''1''
+		                ', tab_temp || '_cbcontrato');
+			
+	        -- Cria índices tmp_cbcontrato
+	        EXECUTE format('CREATE INDEX idx_%I_cpf ON %I (cpf)', tab_temp || '_cbcontrato', tab_temp || '_cbcontrato');
+	        EXECUTE format('CREATE INDEX idx_%I_contrato ON %I (contrato)', tab_temp || '_cbcontrato', tab_temp || '_cbcontrato');
+			
+			-- Drop da tabela temporária para cbparcela
+	        EXECUTE format('DROP TABLE IF EXISTS %I', tab_temp|| '_cbparcela');
+
+			-- Cria a tabela temporária para cbparcela
+			EXECUTE format('CREATE TABLE %I AS
+								   SELECT
+			                       CASE 
+			                           WHEN cp.id_cbparcela_int IS NOT NULL THEN ''A''
+			                           ELSE ''I''
+			                       END AS inclui_altera,
+								   c.id_cbcontrato_int,
+			                       t.cpf,
+			                       t.parcela,
+								   t.vencimento,
+								   t.valor
+			                FROM importacao_implantacao_tmp t
+			                LEFT JOIN cbcontrato c
+			                       ON c.cpf_str = t.cpf
+							LEFT JOIN cbparcela cp
+								   ON c.id_cbcontrato_int = cp.id_cbcontrato_int and t.parcela::int = cp.parcela_int
+			                WHERE t.cpf IS NOT NULL AND t.cpf <> ''''
+			                ', tab_temp || '_cbparcela');
+	
+			-- Cria índices tmp_cbparcela
+	        EXECUTE format('CREATE INDEX idx_%I_cpf ON %I (cpf)', tab_temp || '_cbparcela', tab_temp || '_cbparcela');
+
+			-- Drop da tabela temporária geqlcontato
+			EXECUTE format('DROP TABLE IF EXISTS %I', tab_temp || '_geqlcontato');
+			
+			-- Cria a tabela temporária geqlcontato
+			EXECUTE format('CREATE TABLE %I AS
+			                SELECT t.cpf,
+			                       t.telefone AS contato_str
+			                FROM importacao_implantacao_tmp t
+			                WHERE t.cpf IS NOT NULL AND t.cpf <> '''' AND t.telefone IS NOT NULL
+			
+			                UNION
+			
+			                SELECT t.cpf,
+			                       t.celular AS contato_str
+			                FROM importacao_implantacao_tmp t
+			                WHERE t.cpf IS NOT NULL AND t.cpf <> '''' AND t.celular IS NOT NULL
+			                ', tab_temp || '_geqlcontato');
+			
+			-- Cria índices
+			EXECUTE format('CREATE INDEX idx_%I_cpf ON %I (cpf)', tab_temp || '_geqlcontato', tab_temp || '_geqlcontato');
+			EXECUTE format('CREATE INDEX idx_%I_contato ON %I (contato_str)', tab_temp || '_geqlcontato', tab_temp || '_geqlcontato');
+
+			-- Drop da tabela temporária geqlemail
+			EXECUTE format('DROP TABLE IF EXISTS %I', tab_temp || '_geqlemail');
+			
+			-- Cria a tabela temporária geqlemail
+			EXECUTE format('CREATE TABLE %I AS
+			                SELECT distinct on (t.cpf)
+							t.cpf,
+			                t.email AS email_str
+			                FROM importacao_implantacao_tmp t
+			                WHERE t.cpf IS NOT NULL AND t.cpf <> '''' AND t.email IS NOT NULL
+							', tab_temp || '_geqlemail');
+			
+			-- Cria índices
+			EXECUTE format('CREATE INDEX idx_%I_cpf ON %I (cpf)', tab_temp || '_geqlemail', tab_temp || '_geqlemail');
+			EXECUTE format('CREATE INDEX idx_%I_email ON %I (email_str)', tab_temp || '_geqlemail', tab_temp || '_geqlemail');		
+			
+	ELSEIF Processo = 1 THEN
+
+		RAISE NOTICE 'PROCESSO 1 - Inserir na cbcontrato';
+
+	    -- Insere na cbcontrato quem tem inclui_altera = 'I'
+		EXECUTE format('
+		    INSERT INTO cbcontrato (cpf_str, contrato_str, nome_cliente_str, nascimento_date, logradouro_str, bairro_str, cidade_str, uf_str)
+		    SELECT cpf, contrato, nome_cliente,
+		           to_date(substring(nascimento from 1 for 10), ''DD/MM/YYYY'') AS nascimento_date,
+		           logradouro, bairro, cidade, uf
+		    FROM %I
+		    WHERE inclui_altera = ''I''
+		', tab_temp || '_cbcontrato');
+
+
+   		RAISE NOTICE 'Inserção na cbcontrato finalizada';
+
+	ELSEIF processo = 2 THEN
+	
+	    RAISE NOTICE 'PROCESSO 2 - Atualizar cbcontrato';
+	
+	    EXECUTE format('
+	        UPDATE cbcontrato AS c
+	        SET 
+	            nome_cliente_str = t.nome_cliente,
+	            nascimento_date = to_date(substring(t.nascimento from 1 for 10), ''DD/MM/YYYY''),
+	            logradouro_str = t.logradouro,
+	            bairro_str = t.bairro,
+	            cidade_str = t.cidade,
+	            uf_str = t.uf
+	        FROM %I AS t
+	        WHERE t.inclui_altera = ''A'' AND t.cpf = c.cpf_str
+	    ', tab_temp || '_cbcontrato');
+	
+	    RAISE NOTICE 'Atualização na cbcontrato finalizada';
+		
+	ELSIF processo = 3 THEN
+
+        RAISE NOTICE 'PROCESSO 3 - Inserir na cbparcela';
+
+        EXECUTE format('
+            INSERT INTO cbparcela (id_cbcontrato_int, parcela_int, vencimento_date, valor_decimal)
+            SELECT id_cbcontrato_int, parcela::int, to_date(substring(vencimento from 1 for 10), ''DD/MM/YYYY''), replace(valor, '','', ''.'')::numeric
+            FROM %I
+            WHERE inclui_altera = ''I''
+        ', tab_temp || '_cbparcela');
+
+        RAISE NOTICE 'Inserção na cbparcela finalizada';
+
+    ELSIF processo = 4 THEN
+
+        RAISE NOTICE 'PROCESSO 4 - Atualizar cbparcela';
+
+        -- Atualização da cbparcela para inclui_altera = 'A'
+        EXECUTE format('
+            UPDATE cbparcela AS cp
+            SET
+                vencimento_date = to_date(substring(t.vencimento from 1 for 10), ''DD/MM/YYYY''),
+                valor_decimal = replace(valor, '','', ''.'')::numeric
+
+            FROM %I AS t
+            WHERE t.inclui_altera = ''A'' AND t.id_cbcontrato_int = cp.id_cbcontrato_int AND t.parcela::int = cp.parcela_int
+        ', tab_temp || '_cbparcela');
+
+        RAISE NOTICE 'Atualização na cbparcela finalizada';
+
+	ELSEIF processo = 5 THEN
+
+	    RAISE NOTICE 'PROCESSO 5 - Inserir na geqlcontato';
+	
+	    EXECUTE format('
+	        INSERT INTO geqlcontato (cpf_str, contato_str)
+	        SELECT DISTINCT t.cpf, t.contato_str
+	        FROM %I t
+	        WHERE t.cpf IS NOT NULL
+	          AND t.cpf <> ''''
+	          AND t.contato_str IS NOT NULL
+	          AND t.contato_str <> ''''
+	          AND NOT EXISTS (
+	              SELECT 1
+	              FROM geqlcontato g
+	              WHERE g.cpf_str = t.cpf
+	                AND g.contato_str = t.contato_str
+	          )
+	    ', tab_temp || '_geqlcontato');
+	
+	    RAISE NOTICE 'Inserção na geqlcontato finalizada';
+	
+	ELSEIF processo = 6 THEN
+
+    RAISE NOTICE 'PROCESSO 6 - Inserir na geqlemail';
+
+	    EXECUTE format('
+	        INSERT INTO geqlemail (cpf_str, email_str)
+	        SELECT DISTINCT t.cpf, t.email_str
+	        FROM %I t
+	        WHERE t.cpf IS NOT NULL
+	          AND t.cpf <> ''''
+	          AND t.email_str IS NOT NULL
+	          AND t.email_str <> ''''
+	          AND NOT EXISTS (
+	              SELECT 1
+	              FROM geqlemail g
+	              WHERE g.cpf_str = t.cpf
+	                AND g.email_str = t.email_str
+	          )
+	    ', tab_temp || '_geqlemail');
+	
+	    RAISE NOTICE 'Inserção na geqlemail finalizada';
+
+    ELSE
+        RAISE NOTICE 'Processo % não definido', processo;
+    END IF;
+END;
+$function$
+;
