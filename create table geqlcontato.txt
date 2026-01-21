@@ -1,0 +1,17 @@
+CREATE TABLE geqlcontato (
+    id_geqlcontato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(11) NOT NULL,
+    contato_str VARCHAR(11),
+
+    CONSTRAINT fk_geqlcontato_cpf
+        FOREIGN KEY (cpf_str)
+        REFERENCES cbcontrato (cpf_str)
+);
+
+CREATE INDEX idx_geqlcontato_cpf
+ON geqlcontato (cpf_str);
+
+CREATE INDEX idx_geqlcontato_contato
+ON geqlcontato (contato_str);
+
+

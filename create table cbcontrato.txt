@@ -1,0 +1,21 @@
+CREATE TABLE cbcontrato (
+    id_cbcontrato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(15) NOT NULL,
+    contrato_str VARCHAR(11) NOT null,
+    nome_cliente_str VARCHAR(150) NOT NULL,
+    nascimento DATE NOT NULL,
+    logradouro_str VARCHAR(200) NOT NULL,
+    bairro_str VARCHAR(100) NOT NULL,
+    cidade_str VARCHAR(100) NOT NULL,
+    uf_str CHAR(2) NOT NULL
+);
+
+CREATE UNIQUE INDEX idx_cbcontrato_cpf
+ON cbcontrato (cpf_str);
+
+CREATE INDEX idx_cbcontrato_nome
+ON cbcontrato (nome_cliente_str);
+
+CREATE INDEX idx_cbcontrato_nascimento
+ON cbcontrato (nascimento);
+

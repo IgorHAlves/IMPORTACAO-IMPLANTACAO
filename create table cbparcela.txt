@@ -1,0 +1,18 @@
+CREATE TABLE cbparcela (
+    id_cbparcela_int SERIAL PRIMARY KEY,
+    id_cbcontrato_int INTEGER NOT NULL,
+    parcela_int INTEGER NOT NULL,
+    vencimento_date DATE NOT NULL,
+    valor_decimal NUMERIC(10,2) NOT NULL,
+
+    CONSTRAINT fk_cbparcela_contrato
+        FOREIGN KEY (id_cbcontrato_int)
+        REFERENCES cbcontrato (id_cbcontrato_int)
+);
+
+
+CREATE INDEX idx_cbparcela_contrato
+ON cbparcela (id_cbcontrato_int);
+
+CREATE INDEX idx_cbparcela_vencimento
+ON cbparcela (vencimento_date);

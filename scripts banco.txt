@@ -1,0 +1,78 @@
+CREATE TABLE cbcontrato (
+    id_cbcontrato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(15) NOT NULL,
+    contrato_str VARCHAR(11) NOT null,
+    nome_cliente_str VARCHAR(150) NOT NULL,
+    nascimento DATE NOT NULL,
+    logradouro_str VARCHAR(200) NOT NULL,
+    bairro_str VARCHAR(100) NOT NULL,
+    cidade_str VARCHAR(100) NOT NULL,
+    uf_str CHAR(2) NOT NULL
+);
+
+CREATE UNIQUE INDEX idx_cbcontrato_cpf
+ON cbcontrato (cpf_str);
+
+CREATE INDEX idx_cbcontrato_nome
+ON cbcontrato (nome_cliente_str);
+
+CREATE INDEX idx_cbcontrato_nascimento
+ON cbcontrato (nascimento);
+
+CREATE TABLE cbparcela (
+    id_cbparcela_int SERIAL PRIMARY KEY,
+    id_cbcontrato_int INTEGER NOT NULL,
+    parcela_int INTEGER NOT NULL,
+    vencimento_date DATE NOT NULL,
+    valor_decimal NUMERIC(10,2) NOT NULL,
+
+    CONSTRAINT fk_cbparcela_contrato
+        FOREIGN KEY (id_cbcontrato_int)
+        REFERENCES cbcontrato (id_cbcontrato_int)
+);
+
+
+CREATE INDEX idx_cbparcela_contrato
+ON cbparcela (id_cbcontrato_int);
+
+CREATE INDEX idx_cbparcela_vencimento
+ON cbparcela (vencimento_date);
+
+CREATE TABLE geqlcontato (
+    id_geqlcontato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(11) NOT NULL,
+    contato_str VARCHAR(11),
+
+    CONSTRAINT fk_geqlcontato_cpf
+        FOREIGN KEY (cpf_str)
+        REFERENCES cbcontrato (cpf_str)
+);
+
+CREATE INDEX idx_geqlcontato_cpf
+ON geqlcontato (cpf_str);
+
+CREATE INDEX idx_geqlcontato_contato
+ON geqlcontato (contato_str);
+
+
+CREATE TABLE geqlemail (
+    id_geqlcontato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(11) NOT NULL,
+    email_str VARCHAR(100),
+
+    CONSTRAINT fk_geqlemail_cpf
+        FOREIGN KEY (cpf_str)
+        REFERENCES cbcontrato (cpf_str)
+);
+
+CREATE INDEX idx_geqlemail_cpf
+ON geqlemail (cpf_str);
+
+CREATE INDEX idx_geqlemail_contato
+ON geqlemail (email_str);
+
+
+create table cblayout (
+id_cblayout_int serial primary key,
+layout_str varchar(200) not null
+)

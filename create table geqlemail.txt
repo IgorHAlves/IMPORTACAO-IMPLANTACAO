@@ -1,0 +1,17 @@
+CREATE TABLE geqlemail (
+    id_geqlcontato_int SERIAL PRIMARY KEY,
+    cpf_str VARCHAR(11) NOT NULL,
+    email_str VARCHAR(100),
+
+    CONSTRAINT fk_geqlemail_cpf
+        FOREIGN KEY (cpf_str)
+        REFERENCES cbcontrato (cpf_str)
+);
+
+CREATE INDEX idx_geqlemail_cpf
+ON geqlemail (cpf_str);
+
+CREATE INDEX idx_geqlemail_contato
+ON geqlemail (email_str);
+
+
