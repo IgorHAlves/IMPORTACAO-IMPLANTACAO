@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|c:\\desenvolvimento\\importacao-implantacao\\importacao-implantacao\\importacao de remessa.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|solutionrelative:importacao de remessa.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|c:\\desenvolvimento\\importacao-implantacao\\importacao-implantacao\\services\\importacaoservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
       "RelativeMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|solutionrelative:services\\importacaoservice.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|c:\\desenvolvimento\\importacao-implantacao\\importacao-implantacao\\importacao de remessa.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|solutionrelative:importacao de remessa.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9EF2A2C1-F11C-403B-2699-142CBD672129}|IMPORTACAO-IMPLANTACAO.vbproj|c:\\desenvolvimento\\importacao-implantacao\\importacao-implantacao\\importacao de remessa.designer.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
@@ -26,46 +26,44 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Importacao de remessa.Designer.vb",
-              "DocumentMoniker": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\Importacao-Implantacao\\Importacao de remessa.Designer.vb",
+              "DocumentMoniker": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Importacao de remessa.Designer.vb",
               "RelativeDocumentMoniker": "Importacao de remessa.Designer.vb",
-              "ToolTip": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\Importacao-Implantacao\\Importacao de remessa.Designer.vb",
+              "ToolTip": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Importacao de remessa.Designer.vb",
               "RelativeToolTip": "Importacao de remessa.Designer.vb",
               "ViewState": "AgIAAEUAAAAAAAAAAAAqwGAAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-22T00:24:21.019Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-22T00:24:21.019Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ImportacaoService.vb",
               "DocumentMoniker": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Services\\ImportacaoService.vb",
               "RelativeDocumentMoniker": "Services\\ImportacaoService.vb",
               "ToolTip": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Services\\ImportacaoService.vb",
               "RelativeToolTip": "Services\\ImportacaoService.vb",
-              "ViewState": "AgIAAGgAAAAAAAAAAAAAAMIAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAL8AAAAAAAAAAAAiwNQAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
               "WhenOpened": "2026-01-22T00:04:12.4Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Importacao de remessa.vb",
               "DocumentMoniker": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Importacao de remessa.vb",
               "RelativeDocumentMoniker": "Importacao de remessa.vb",
               "ToolTip": "C:\\DESENVOLVIMENTO\\IMPORTACAO-IMPLANTACAO\\IMPORTACAO-IMPLANTACAO\\Importacao de remessa.vb",
               "RelativeToolTip": "Importacao de remessa.vb",
-              "ViewState": "AgIAACQAAAAAAAAAAAAiwEAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAADwv0AAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-20T16:18:47.969Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-20T16:18:47.969Z"
             },
             {
               "$type": "Document",

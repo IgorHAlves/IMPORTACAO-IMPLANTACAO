@@ -16,7 +16,7 @@ Imports System.Reflection
 <Assembly: System.Reflection.AssemblyCompanyAttribute("IMPORTACAO-IMPLANTACAO"),  _
  Assembly: System.Reflection.AssemblyConfigurationAttribute("Debug"),  _
  Assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0"),  _
- Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32001393ed3051252cfb26719de14b3ca77c7be0"),  _
+ Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e4b6413cee23ea5c1e2b0ec19dc5e798f519db02"),  _
  Assembly: System.Reflection.AssemblyProductAttribute("IMPORTACAO-IMPLANTACAO"),  _
  Assembly: System.Reflection.AssemblyTitleAttribute("IMPORTACAO-IMPLANTACAO"),  _
  Assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0"),  _

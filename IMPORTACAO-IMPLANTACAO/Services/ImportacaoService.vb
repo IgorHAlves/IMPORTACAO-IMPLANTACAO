@@ -64,60 +64,57 @@ Public Class ImportacaoService
                             ' Validações
                             ' ---------------------------
                             If Not ValidationUtils.ValidarCPF(cpf) Then
-                                If Not PerguntarIgnorar(linha, "CPF vazio ou não informado", caminhoArquivo) Then
+                                If Not PerguntarIgnorar(linha, "CPF vazio ou não informado", caminhoArquivo, cpf, parcela, conn, trans) Then
                                     Throw New Exception("Importação cancelada.")
                                 End If
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(email) AndAlso Not ValidationUtils.ValidarEmail(email) Then
-                                If Not PerguntarIgnorar(linha, $"E-mail inválido ({email})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"E-mail inválido ({email})", caminhoArquivo, cpf, parcela, conn, trans) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(telefone) AndAlso Not ValidationUtils.ValidarTelefone(telefone) Then
-                                If Not PerguntarIgnorar(linha, $"Telefone inválido ({telefone})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Telefone inválido ({telefone})", caminhoArquivo, cpf, parcela, conn, trans) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(celular) AndAlso Not ValidationUtils.ValidarCelular(celular) Then
-                                If Not PerguntarIgnorar(linha, $"Celular inválido ({celular})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Celular inválido ({celular})", caminhoArquivo, cpf, parcela, conn, trans) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not ValidationUtils.ValidarValor(valorStr) Then
-                                If Not PerguntarIgnorar(linha, $"Valor inválido ({valorStr})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Valor inválido ({valorStr})", caminhoArquivo, cpf, parcela, conn, trans) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not ValidationUtils.ValidarData(vencimentoStr) Then
-                                If Not PerguntarIgnorar(linha, $"Vencimento inválido ({vencimentoStr})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Vencimento inválido ({vencimentoStr})", caminhoArquivo, cpf, parcela, conn, trans) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
+                            ' ---------------------------
+                            ' Endereço aleatório para parcela 1
+                            ' ---------------------------
                             Dim enderecoRandom As (logradouro As String, bairro As String, cidade As String, uf As String) = Nothing
 
                             If parcela = "1" Then
                                 enderecoRandom = Await EnderecoUtils.BuscarEnderecoRandomAsync()
 
-                                If String.IsNullOrWhiteSpace(uf) Then
-                                    uf = enderecoRandom.uf
-                                End If
-
+                                If String.IsNullOrWhiteSpace(uf) Then uf = enderecoRandom.uf
                                 uf = ValidationUtils.ObterUF(uf)
 
                                 If String.IsNullOrWhiteSpace(planilha.Cell(linha, colunas.IndexOf("LOGRADOURO") + 1).GetString()) Then
                                     planilha.Cell(linha, colunas.IndexOf("LOGRADOURO") + 1).Value = enderecoRandom.logradouro
                                 End If
-
                                 If String.IsNullOrWhiteSpace(planilha.Cell(linha, colunas.IndexOf("BAIRRO") + 1).GetString()) Then
                                     planilha.Cell(linha, colunas.IndexOf("BAIRRO") + 1).Value = enderecoRandom.bairro
                                 End If
-
                                 If String.IsNullOrWhiteSpace(planilha.Cell(linha, colunas.IndexOf("CIDADE") + 1).GetString()) Then
                                     planilha.Cell(linha, colunas.IndexOf("CIDADE") + 1).Value = enderecoRandom.cidade
                                 End If
-
                                 If String.IsNullOrWhiteSpace(planilha.Cell(linha, colunas.IndexOf("UF") + 1).GetString()) Then
                                     planilha.Cell(linha, colunas.IndexOf("UF") + 1).Value = uf
                                 End If
@@ -185,9 +182,9 @@ Public Class ImportacaoService
     End Function
 
     ' ---------------------------
-    ' Pergunta se quer ignorar e registra no log
+    ' Pergunta se quer ignorar e registra no log (arquivo + banco)
     ' ---------------------------
-    Private Shared Function PerguntarIgnorar(linha As Integer, mensagem As String, caminhoArquivo As String) As Boolean
+    Private Shared Function PerguntarIgnorar(linha As Integer, mensagem As String, caminhoArquivo As String, cpf As String, parcela As String, conn As NpgsqlConnection, trans As NpgsqlTransaction) As Boolean
         Dim r = MessageBox.Show(
             $"Linha {linha}: {mensagem}" & vbCrLf &
             "Deseja ignorar esta linha e continuar?",
@@ -197,19 +194,37 @@ Public Class ImportacaoService
         )
 
         If r = DialogResult.Yes Then
-            RegistrarLog(caminhoArquivo, $"Linha {linha} ignorada: {mensagem}")
+            ' Grava no arquivo
+            RegistrarLogArquivo(caminhoArquivo, linha, cpf, parcela, mensagem)
+            ' Grava no banco
+            RegistrarLogBanco(caminhoArquivo, linha, cpf, parcela, mensagem, conn, trans)
         End If
 
         Return r = DialogResult.Yes
     End Function
 
     ' ---------------------------
-    ' Função que grava no arquivo de log
+    ' Log no arquivo
     ' ---------------------------
-    Private Shared Sub RegistrarLog(caminhoArquivo As String, mensagem As String)
+    Private Shared Sub RegistrarLogArquivo(caminhoArquivo As String, linha As Integer, cpf As String, parcela As String, mensagem As String)
         Dim logFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(caminhoArquivo), "importacao_ignorada.log")
-        Dim linha = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {mensagem}"
-        System.IO.File.AppendAllText(logFile, linha & Environment.NewLine)
+        Dim linhaLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Linha {linha} | CPF: {cpf} | Parcela: {parcela} | {mensagem}"
+        System.IO.File.AppendAllText(logFile, linhaLog & Environment.NewLine)
+    End Sub
+
+    ' ---------------------------
+    ' Log no banco
+    ' ---------------------------
+    Private Shared Sub RegistrarLogBanco(arquivo As String, linha As Integer, cpf As String, parcela As String, mensagem As String, conn As NpgsqlConnection, trans As NpgsqlTransaction)
+        Dim sql = "INSERT INTO importacao_logs (arquivo_nome, linha, cpf, parcela, mensagem) VALUES (@arquivo, @linha, @cpf, @parcela, @mensagem);"
+        Using cmd As New NpgsqlCommand(sql, conn, trans)
+            cmd.Parameters.AddWithValue("@arquivo", System.IO.Path.GetFileName(arquivo))
+            cmd.Parameters.AddWithValue("@linha", linha)
+            cmd.Parameters.AddWithValue("@cpf", If(String.IsNullOrWhiteSpace(cpf), CType(DBNull.Value, Object), cpf))
+            cmd.Parameters.AddWithValue("@parcela", If(String.IsNullOrWhiteSpace(parcela), CType(DBNull.Value, Object), parcela))
+            cmd.Parameters.AddWithValue("@mensagem", mensagem)
+            cmd.ExecuteNonQuery()
+        End Using
     End Sub
 
 End Class

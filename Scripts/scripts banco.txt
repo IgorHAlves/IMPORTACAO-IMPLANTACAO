@@ -79,3 +79,13 @@ layout_str varchar(200) not null
 
 insert into cblayout (layout_str)
 values('CPF;CONTRATO;PARCELA;VENCIMENTO;VALOR;NOME_CLIENTE;TELEFONE;CELULAR;EMAIL;NASCIMENTO;LOGRADOURO;BAIRRO;CIDADE;UF');
+
+CREATE TABLE importacao_logs (
+    id SERIAL PRIMARY KEY,
+    arquivo_nome TEXT NOT NULL,
+    linha INT NOT NULL,
+    cpf TEXT,
+    parcela TEXT,
+    mensagem TEXT NOT NULL,
+    data_hora TIMESTAMP NOT NULL DEFAULT NOW()
+);

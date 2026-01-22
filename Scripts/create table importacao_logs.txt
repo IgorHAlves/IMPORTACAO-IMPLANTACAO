@@ -1,0 +1,9 @@
+CREATE TABLE importacao_logs (
+    id SERIAL PRIMARY KEY,
+    arquivo_nome TEXT NOT NULL,
+    linha INT NOT NULL,
+    cpf TEXT,
+    parcela TEXT,
+    mensagem TEXT NOT NULL,
+    data_hora TIMESTAMP NOT NULL DEFAULT NOW()
+);
