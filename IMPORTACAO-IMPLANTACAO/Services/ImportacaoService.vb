@@ -1,11 +1,13 @@
 ﻿Imports System.Globalization
 Imports ClosedXML.Excel
 Imports Npgsql
-Imports SixLabors.Fonts.Tables
 
 Public Class ImportacaoService
 
-    Public Shared Async Function ImportarAsync(caminhoArquivo As String) As Task
+    ' ------------------------------
+    ' Função principal de importação
+    ' ------------------------------
+    Public Shared Async Function ImportarAsync(caminhoArquivo As String, reportarProgresso As Action(Of Integer, String)) As Task
 
         Dim connString As String = "Host=localhost;Username=root;Password=1234;Database=implantacao"
 
@@ -21,10 +23,12 @@ Public Class ImportacaoService
                         Dim ultimaColuna = planilha.LastColumnUsed
                         Dim colunas As New List(Of String)
 
+                        ' Lê os nomes das colunas
                         For c = 1 To ultimaColuna.ColumnNumber
                             colunas.Add(planilha.Cell(primeiraLinha.RowNumber, c).GetString().Trim())
                         Next
 
+                        ' Cria tabela temporária
                         Dim sqlCreate =
                             "DROP TABLE IF EXISTS importacao_implantacao_tmp;" & vbCrLf &
                             "CREATE TABLE importacao_implantacao_tmp (" &
@@ -34,6 +38,7 @@ Public Class ImportacaoService
                             cmdCreate.ExecuteNonQuery()
                         End Using
 
+                        ' Índices das colunas importantes
                         Dim idxCPF = colunas.IndexOf("CPF") + 1
                         Dim idxTelefone = colunas.IndexOf("TELEFONE") + 1
                         Dim idxCelular = colunas.IndexOf("CELULAR") + 1
@@ -43,6 +48,7 @@ Public Class ImportacaoService
                         Dim idxVencimento = colunas.IndexOf("VENCIMENTO") + 1
                         Dim idxParcela = colunas.IndexOf("PARCELA") + 1
 
+                        ' Percorre todas as linhas do Excel
                         For linha = primeiraLinha.RowNumber + 1 To ultimaLinha.RowNumber
 
                             Dim cpf = planilha.Cell(linha, idxCPF).GetString().Trim()
@@ -54,43 +60,44 @@ Public Class ImportacaoService
                             Dim vencimentoStr = planilha.Cell(linha, idxVencimento).GetString().Trim()
                             Dim parcela = planilha.Cell(linha, idxParcela).GetString().Trim()
 
-
+                            ' ---------------------------
+                            ' Validações
+                            ' ---------------------------
                             If Not ValidationUtils.ValidarCPF(cpf) Then
-                                If Not PerguntarIgnorar(linha, "CPF vazio ou não informado") Then
+                                If Not PerguntarIgnorar(linha, "CPF vazio ou não informado", caminhoArquivo) Then
                                     Throw New Exception("Importação cancelada.")
                                 End If
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(email) AndAlso Not ValidationUtils.ValidarEmail(email) Then
-                                If Not PerguntarIgnorar(linha, $"E-mail inválido ({email})") Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"E-mail inválido ({email})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(telefone) AndAlso Not ValidationUtils.ValidarTelefone(telefone) Then
-                                If Not PerguntarIgnorar(linha, $"Telefone inválido ({telefone})") Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Telefone inválido ({telefone})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not String.IsNullOrEmpty(celular) AndAlso Not ValidationUtils.ValidarCelular(celular) Then
-                                If Not PerguntarIgnorar(linha, $"Celular inválido ({celular})") Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Celular inválido ({celular})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not ValidationUtils.ValidarValor(valorStr) Then
-                                If Not PerguntarIgnorar(linha, $"Valor inválido ({valorStr})") Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Valor inválido ({valorStr})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             If Not ValidationUtils.ValidarData(vencimentoStr) Then
-                                If Not PerguntarIgnorar(linha, $"Vencimento inválido ({vencimentoStr})") Then Throw New Exception("Importação cancelada.")
+                                If Not PerguntarIgnorar(linha, $"Vencimento inválido ({vencimentoStr})", caminhoArquivo) Then Throw New Exception("Importação cancelada.")
                                 Continue For
                             End If
 
                             Dim enderecoRandom As (logradouro As String, bairro As String, cidade As String, uf As String) = Nothing
 
                             If parcela = "1" Then
-
                                 enderecoRandom = Await EnderecoUtils.BuscarEnderecoRandomAsync()
 
                                 If String.IsNullOrWhiteSpace(uf) Then
@@ -114,11 +121,12 @@ Public Class ImportacaoService
                                 If String.IsNullOrWhiteSpace(planilha.Cell(linha, colunas.IndexOf("UF") + 1).GetString()) Then
                                     planilha.Cell(linha, colunas.IndexOf("UF") + 1).Value = uf
                                 End If
-
                             End If
 
+                            ' ---------------------------
+                            ' Inserção na tabela temporária
+                            ' ---------------------------
                             Dim valores As New List(Of String)
-
                             For c = 1 To ultimaColuna.ColumnNumber
                                 Dim v = planilha.Cell(linha, c).GetString().Trim().Replace("'", "''")
                                 valores.Add($"'{v}'")
@@ -136,7 +144,25 @@ Public Class ImportacaoService
                         Next
                     End Using
 
+                    ' ---------------------------
+                    ' Executa os processos no banco
+                    ' ---------------------------
                     For processo As Integer = 0 To 7
+                        Dim descricao As String
+                        Select Case processo
+                            Case 0 : descricao = "Criando tabelas temporárias"
+                            Case 1 : descricao = "Inserindo cbcontrato"
+                            Case 2 : descricao = "Atualizando cbcontrato"
+                            Case 3 : descricao = "Inserindo cbparcela"
+                            Case 4 : descricao = "Atualizando cbparcela"
+                            Case 5 : descricao = "Inserindo geqlcontato"
+                            Case 6 : descricao = "Inserindo geqlemail"
+                            Case 7 : descricao = "Finalizando importação"
+                            Case Else : descricao = "Processo desconhecido"
+                        End Select
+
+                        reportarProgresso?.Invoke(processo, $"{descricao} ({processo}/7)")
+
                         Using cmd As New NpgsqlCommand(
                             "SELECT f_importa_remessa_implantacao(@p, @t);",
                             conn,
@@ -158,7 +184,10 @@ Public Class ImportacaoService
         End Using
     End Function
 
-    Private Shared Function PerguntarIgnorar(linha As Integer, mensagem As String) As Boolean
+    ' ---------------------------
+    ' Pergunta se quer ignorar e registra no log
+    ' ---------------------------
+    Private Shared Function PerguntarIgnorar(linha As Integer, mensagem As String, caminhoArquivo As String) As Boolean
         Dim r = MessageBox.Show(
             $"Linha {linha}: {mensagem}" & vbCrLf &
             "Deseja ignorar esta linha e continuar?",
@@ -167,7 +196,20 @@ Public Class ImportacaoService
             MessageBoxIcon.Warning
         )
 
+        If r = DialogResult.Yes Then
+            RegistrarLog(caminhoArquivo, $"Linha {linha} ignorada: {mensagem}")
+        End If
+
         Return r = DialogResult.Yes
     End Function
+
+    ' ---------------------------
+    ' Função que grava no arquivo de log
+    ' ---------------------------
+    Private Shared Sub RegistrarLog(caminhoArquivo As String, mensagem As String)
+        Dim logFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(caminhoArquivo), "importacao_ignorada.log")
+        Dim linha = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {mensagem}"
+        System.IO.File.AppendAllText(logFile, linha & Environment.NewLine)
+    End Sub
 
 End Class

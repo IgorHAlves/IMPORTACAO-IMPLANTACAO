@@ -22,79 +22,113 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
-        Me.lblCaminho = New System.Windows.Forms.Label()
-        Me.btnBuscarArquivo = New System.Windows.Forms.Button()
-        Me.lblTitulo = New System.Windows.Forms.Label()
-        Me.btnImportar = New System.Windows.Forms.Button()
-        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.SuspendLayout()
-        '
-        'DataGridView1
-        '
-        Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.DataGridView1.Location = New System.Drawing.Point(22, 68)
-        Me.DataGridView1.Name = "DataGridView1"
-        Me.DataGridView1.Size = New System.Drawing.Size(739, 307)
-        Me.DataGridView1.TabIndex = 1
-        '
-        'OpenFileDialog1
-        '
-        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-        '
-        'lblCaminho
-        '
-        Me.lblCaminho.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblCaminho.Location = New System.Drawing.Point(22, 385)
-        Me.lblCaminho.Name = "lblCaminho"
-        Me.lblCaminho.Size = New System.Drawing.Size(700, 23)
-        Me.lblCaminho.TabIndex = 2
-        Me.lblCaminho.Text = "(Nenhum arquivo selecionado)"
-        '
-        'btnBuscarArquivo
-        '
-        Me.btnBuscarArquivo.Location = New System.Drawing.Point(728, 385)
-        Me.btnBuscarArquivo.Name = "btnBuscarArquivo"
-        Me.btnBuscarArquivo.Size = New System.Drawing.Size(33, 23)
-        Me.btnBuscarArquivo.TabIndex = 3
-        Me.btnBuscarArquivo.Text = "..."
-        Me.btnBuscarArquivo.UseVisualStyleBackColor = True
-        '
-        'lblTitulo
-        '
-        Me.lblTitulo.AutoSize = True
-        Me.lblTitulo.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
-        Me.lblTitulo.Location = New System.Drawing.Point(263, 31)
-        Me.lblTitulo.Name = "lblTitulo"
-        Me.lblTitulo.Size = New System.Drawing.Size(269, 21)
-        Me.lblTitulo.TabIndex = 0
-        Me.lblTitulo.Text = "Importação de Remessa Carteira X"
-        '
-        'btnImportar
-        '
-        Me.btnImportar.Location = New System.Drawing.Point(310, 415)
-        Me.btnImportar.Name = "btnImportar"
-        Me.btnImportar.Size = New System.Drawing.Size(147, 27)
-        Me.btnImportar.TabIndex = 4
-        Me.btnImportar.Text = "Importar"
-        Me.btnImportar.UseVisualStyleBackColor = True
-        '
-        'Form1
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
-        Me.Controls.Add(Me.btnImportar)
-        Me.Controls.Add(Me.lblTitulo)
-        Me.Controls.Add(Me.btnBuscarArquivo)
-        Me.Controls.Add(Me.lblCaminho)
-        Me.Controls.Add(Me.DataGridView1)
-        Me.Name = "Form1"
-        Me.Text = "Importacao de remessa"
-        CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        DataGridView1 = New DataGridView()
+        OpenFileDialog1 = New OpenFileDialog()
+        lblCaminho = New Label()
+        btnBuscarArquivo = New Button()
+        lblTitulo = New Label()
+        btnImportar = New Button()
+        pnlLoading = New Panel()
+        lblStatus = New Label()
+        pbImportacao = New ProgressBar()
+        CType(DataGridView1, ComponentModel.ISupportInitialize).BeginInit()
+        pnlLoading.SuspendLayout()
+        SuspendLayout()
+        ' 
+        ' DataGridView1
+        ' 
+        DataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        DataGridView1.Location = New Point(22, 68)
+        DataGridView1.Name = "DataGridView1"
+        DataGridView1.Size = New Size(739, 278)
+        DataGridView1.TabIndex = 1
+        ' 
+        ' OpenFileDialog1
+        ' 
+        OpenFileDialog1.FileName = "OpenFileDialog1"
+        ' 
+        ' lblCaminho
+        ' 
+        lblCaminho.BorderStyle = BorderStyle.FixedSingle
+        lblCaminho.Location = New Point(22, 385)
+        lblCaminho.Name = "lblCaminho"
+        lblCaminho.Size = New Size(700, 23)
+        lblCaminho.TabIndex = 2
+        lblCaminho.Text = "(Nenhum arquivo selecionado)"
+        ' 
+        ' btnBuscarArquivo
+        ' 
+        btnBuscarArquivo.Location = New Point(728, 385)
+        btnBuscarArquivo.Name = "btnBuscarArquivo"
+        btnBuscarArquivo.Size = New Size(33, 23)
+        btnBuscarArquivo.TabIndex = 3
+        btnBuscarArquivo.Text = "..."
+        btnBuscarArquivo.UseVisualStyleBackColor = True
+        ' 
+        ' lblTitulo
+        ' 
+        lblTitulo.AutoSize = True
+        lblTitulo.Font = New Font("Segoe UI", 12F, FontStyle.Bold)
+        lblTitulo.Location = New Point(263, 31)
+        lblTitulo.Name = "lblTitulo"
+        lblTitulo.Size = New Size(269, 21)
+        lblTitulo.TabIndex = 0
+        lblTitulo.Text = "Importação de Remessa Carteira X"
+        ' 
+        ' btnImportar
+        ' 
+        btnImportar.Location = New Point(310, 415)
+        btnImportar.Name = "btnImportar"
+        btnImportar.Size = New Size(147, 27)
+        btnImportar.TabIndex = 4
+        btnImportar.Text = "Importar"
+        btnImportar.UseVisualStyleBackColor = True
+        ' 
+        ' pnlLoading
+        ' 
+        pnlLoading.Controls.Add(lblStatus)
+        pnlLoading.Controls.Add(pbImportacao)
+        pnlLoading.Location = New Point(22, 352)
+        pnlLoading.Name = "pnlLoading"
+        pnlLoading.Size = New Size(739, 27)
+        pnlLoading.TabIndex = 5
+        pnlLoading.Visible = False
+        ' 
+        ' lblStatus
+        ' 
+        lblStatus.AutoSize = True
+        lblStatus.Location = New Point(313, 7)
+        lblStatus.Name = "lblStatus"
+        lblStatus.Size = New Size(41, 15)
+        lblStatus.TabIndex = 2
+        lblStatus.Text = "Label1"
+        ' 
+        ' pbImportacao
+        ' 
+        pbImportacao.Location = New Point(37, 5)
+        pbImportacao.Maximum = 8
+        pbImportacao.Name = "pbImportacao"
+        pbImportacao.Size = New Size(699, 19)
+        pbImportacao.TabIndex = 1
+        ' 
+        ' Form1
+        ' 
+        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleMode = AutoScaleMode.Font
+        ClientSize = New Size(800, 450)
+        Controls.Add(pnlLoading)
+        Controls.Add(btnImportar)
+        Controls.Add(lblTitulo)
+        Controls.Add(btnBuscarArquivo)
+        Controls.Add(lblCaminho)
+        Controls.Add(DataGridView1)
+        Name = "Form1"
+        Text = "Importacao de remessa"
+        CType(DataGridView1, ComponentModel.ISupportInitialize).EndInit()
+        pnlLoading.ResumeLayout(False)
+        pnlLoading.PerformLayout()
+        ResumeLayout(False)
+        PerformLayout()
     End Sub
 
     Friend WithEvents DataGridView1 As DataGridView
@@ -103,5 +137,8 @@ Partial Class Form1
     Friend WithEvents btnBuscarArquivo As Button
     Friend WithEvents lblTitulo As Label
     Friend WithEvents btnImportar As Button
+    Friend WithEvents pnlLoading As Panel
+    Friend WithEvents lblStatus As Label
+    Friend WithEvents pbImportacao As ProgressBar
 
 End Class

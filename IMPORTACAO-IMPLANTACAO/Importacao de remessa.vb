@@ -3,6 +3,14 @@ Imports ClosedXML.Excel
 Imports Npgsql
 
 Public Class Form1
+    Public Sub New()
+
+        ' Esta chamada é requerida pelo designer.
+        InitializeComponent()
+
+        ' Adicione qualquer inicialização após a chamada InitializeComponent().
+
+    End Sub
 
     Private Sub btnBuscarArquivo_Click(sender As Object, e As EventArgs) Handles btnBuscarArquivo.Click
         OpenFileDialog1.Title = "Selecione um arquivo Excel"
@@ -24,14 +32,42 @@ Public Class Form1
         btnImportar.Enabled = False
 
         Try
-            Await ImportacaoService.ImportarAsync(lblCaminho.Text)
+            pnlLoading.Visible = True
+            pbImportacao.Minimum = 0
+            pbImportacao.Maximum = 8
+            pbImportacao.Value = 0
+            lblStatus.Text = "Iniciando importação..."
+
+            Await ImportacaoService.ImportarAsync(
+            lblCaminho.Text,
+            Sub(processo, texto)
+
+                Me.Invoke(Sub()
+                              pbImportacao.Value = processo + 1
+                              lblStatus.Text = texto
+                              lblStatus.Invalidate()
+                              lblStatus.Update()
+                          End Sub)
+
+            End Sub
+            )
+
             MessageBox.Show("Importação realizada com sucesso!")
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         Finally
             btnImportar.Enabled = True
+            pnlLoading.Visible = False
+            pbImportacao.Value = 0
+            lblStatus.Text = ""
         End Try
     End Sub
 
+    Private Sub lblStatus_Click(sender As Object, e As EventArgs) Handles lblStatus.Click
 
+    End Sub
+
+    Private Sub pnlLoading_Paint(sender As Object, e As PaintEventArgs) Handles pnlLoading.Paint
+
+    End Sub
 End Class
